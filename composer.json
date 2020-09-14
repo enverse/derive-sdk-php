@@ -1,0 +1,22 @@
+{
+    "name": "heretique/derive-sdk-php",
+    "description": "Development kit for creating external applications using the Derive API",
+    "type": "library",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Simon Humeau",
+            "email": "simon.humeau@heretique.fr"
+        }
+    ],
+    "require": {
+        "symfony/http-client": "^5.1",
+        "phpunit/phpunit": "^9.3"
+    },
+    "autoload": {
+        "psr-4": { "Heretique\\DeriveSDK\\": "" },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    }
+}
