@@ -33,7 +33,7 @@ class DeriveClientTestUtils
     public static function testXAppVersionHeaderIsSet($headers)
     {
         foreach ($headers as $header) {
-            if ($header == 'X-App-Version: derive-random') return true;
+            if ($header == 'X-App-Version: drd-b') return true;
         }
         return false;
     }

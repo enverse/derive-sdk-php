@@ -196,7 +196,7 @@ class DeriveClient implements DeriveClientInterface
     {
         return [
             'Content-Type' => 'application/json',
-            'X-App-Version' => 'derive-random'
+            'X-App-Version' => 'drd-b'
         ];
     }
 
