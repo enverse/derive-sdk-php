@@ -30,7 +30,8 @@ class MockDeriveBackendClient extends MockHttpClient
                 return new MockResponse('{"username":"' . $this->registeredUsername . '"}', [
                     'response_headers' => [
                         'Content-Type' => 'application/json'
-                    ]
+                    ],
+                    'http_code' => 261
                 ]);
             } elseif ($url == 'https://derive-api.altertopia.co/auth' && $method == 'POST') {
                 $body = json_decode($options['body']);

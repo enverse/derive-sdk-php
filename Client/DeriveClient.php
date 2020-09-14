@@ -156,7 +156,7 @@ class DeriveClient implements DeriveClientInterface
      */
     private function checkResponseIsOk(ResponseInterface $response, $exceptionClass)
     {
-        if ($response->getStatusCode() !== 200) {
+        if (!in_array($response->getStatusCode(), [200, 261])) {
             throw new $exceptionClass('Derive Backend resquest failed with status code : ' . $response->getStatusCode());
         }
 
