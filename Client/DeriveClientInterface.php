@@ -11,4 +11,6 @@ interface DeriveClientInterface
     public function getAccessToken();
 
     public function getUsername();
+
+    public function getDerive($code);
 }

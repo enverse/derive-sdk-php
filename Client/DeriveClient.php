@@ -2,12 +2,16 @@
 
 namespace Heretique\DeriveSDK\Client;
 
+use Heretique\DeriveSDK\Document\Address;
+use Heretique\DeriveSDK\Document\AddressText;
 use Heretique\DeriveSDK\Exception\LoginException;
 use Heretique\DeriveSDK\Exception\SignupException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Heretique\DeriveSDK\Document\Derive;
+use Heretique\DeriveSDK\Exception\CreateDeriveException;
 use Heretique\DeriveSDK\Exception\GetDeriveException;
+use Heretique\DeriveSDK\Factory\DeriveFactory;
 
 use function PHPUnit\Framework\throwException;
 
@@ -192,7 +196,7 @@ class DeriveClient implements DeriveClientInterface
     /**
      * @return array
      */
-    public function getHeaders()
+    private function getHeaders()
     {
         return [
             'Content-Type' => 'application/json',
@@ -200,7 +204,7 @@ class DeriveClient implements DeriveClientInterface
         ];
     }
 
-    public function getAuthenticatedHeaders()
+    private function getAuthenticatedHeaders()
     {
         $headers = $this->getHeaders();
 
@@ -226,15 +230,30 @@ class DeriveClient implements DeriveClientInterface
         $this->checkResponseIsOk($deriveResponse, GetDeriveException::class);
 
         $body = $deriveResponse->toArray();
+        
+        $derive = DeriveFactory::createDeriveFromArray($body);
 
-        $derive = new Derive();
-        $derive->setCode($body['code']);
-        $derive->setLat($body['lat']);
-        $derive->setLng($body['lng']);
-        $derive->setMessage($body['message']);
-        if (isset($body['address'])) {
-            $derive->setAddress($body['address']);
+        return $derive;
+    }
+
+    public function createDerive(Derive $derive)
+    {
+        if (!$this->isAuthenticated()) {
+            $this->authenticate();
         }
+
+        $deriveResponse = $this->httpClient->request('POST', $this->apiUrl . '/derive', [
+            'body' => json_encode($derive->toArray()),
+            'headers' => $this->getAuthenticatedHeaders()
+        ]);
+        
+        $this->checkResponseIsOk($deriveResponse, CreateDeriveException::class);
+        
+        $body = $deriveResponse->toArray();
+
+        $code = $body['code'];
+
+        $derive->setCode($code);
 
         return $derive;
     }
