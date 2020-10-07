@@ -5,7 +5,10 @@ namespace Heretique\DeriveSDK\Tests;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use Heretique\DeriveSDK\Client\DeriveClient;
+use Heretique\DeriveSDK\Document\Address;
+use Heretique\DeriveSDK\Document\AddressText;
 use Heretique\DeriveSDK\Document\Derive;
+use Heretique\DeriveSDK\Document\Position;
 use Heretique\DeriveSDK\Exception\LoginException;
 use Heretique\DeriveSDK\Exception\SignupException;
 use Heretique\DeriveSDK\Factory\DeriveFactory;
@@ -88,5 +91,21 @@ class DeriveClientTest extends TestCase
         $derive = $deriveClient->createDerive($derive);
 
         $this->assertEquals('CCCCCC', $derive->getCode());
+    }
+
+    public function testForwardGeocode()
+    {
+        $httpClient = $this->createMockDeriveBackendClient();
+
+        $deriveClient = new DeriveClient($httpClient, $this->secretToken, DeriveClientTestUtils::API_KEY, $this->apiUrl);
+
+        $addresses = $deriveClient->forwardGeocode('90 avenue Francois mole');
+
+        if (count($addresses) == [0] || $this->assertEquals(Address::class, get_class($addresses[0]))) {
+            $this->fail('forwardGeocode does not have expected output.');
+        } else {
+            $this->assertEquals(Position::class, get_class($addresses[0]->getPosition()));
+            $this->assertEquals(AddressText::class, get_class($addresses[0]->getText()));
+        }
     }
 }

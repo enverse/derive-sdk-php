@@ -27,6 +27,8 @@ class MockDeriveBackendClient extends MockHttpClient
                 return $this->authController($method, $url, $options);
             } elseif ('https://derive-api.altertopia.co/derive' == $url) {
                 return $this->createDeriveController($method, $url, $options);
+            } elseif (preg_match('/https:\/\/derive-api\.altertopia\.co\/geocode\/forward/', $url)) {
+                return $this->forwardGeocodeController($method, $url, $options);
             } elseif (preg_match('/^https:\/\/derive-api\.altertopia\.co\/derive\/[aA0-zZ9]{6}/', $url)) {
                 return $this->getDeriveController($method, $url, $options);
             }
@@ -114,5 +116,27 @@ class MockDeriveBackendClient extends MockHttpClient
         }
 
         return new MockResponse('', ['http_code' => 400]);
+    }
+
+    private function forwardGeocodeController($method, $url, $options)
+    {
+        if (!DeriveClientTestUtils::testAuthorizationHeaderIsSet($options['headers'], 'secretaccesstoken')) {
+            return new MockResponse('', ['http_code' => 401]);
+        }
+
+        $address = $options['query']['address'];
+
+        if (!$address) {
+            return new MockResponse('', ['http_code', 400]);
+        }
+
+        return new MockResponse(
+            '{"Avenue Fran\u00e7ois Mol\u00e9, Verri\u00e8res-le-Buisson, 91370, France": {"text": {"prefix": null, "street": "Avenue Fran\u00e7ois Mol\u00e9", "city": "Verri\u00e8res-le-Buisson", "postal_code": "91370", "country": "France"}, "position": {"lat": 48.7453765, "lng": 2.2832358}}}',
+            [
+                'response_headers' => [
+                    'Content-Type' => 'application/json'
+                ]
+            ]
+                );
     }
 }

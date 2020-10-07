@@ -10,6 +10,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Heretique\DeriveSDK\Document\Derive;
 use Heretique\DeriveSDK\Exception\CreateDeriveException;
+use Heretique\DeriveSDK\Exception\ForwardGeocodeException;
 use Heretique\DeriveSDK\Exception\GetDeriveException;
 use Heretique\DeriveSDK\Factory\DeriveFactory;
 
@@ -256,5 +257,33 @@ class DeriveClient implements DeriveClientInterface
         $derive->setCode($code);
 
         return $derive;
+    }
+
+    public function forwardGeocode(string $query)
+    {
+        if (!$this->isAuthenticated()) {
+            $this->authenticate();
+        }
+
+        $forwardGeocodeResponse = $this->httpClient->request('GET', $this->apiUrl . '/geocode/forward', [
+            'query' => [
+                'address' => $query,
+            ],
+            'headers' => $this->getAuthenticatedHeaders()
+        ]);
+
+        $this->checkResponseIsOk($forwardGeocodeResponse, ForwardGeocodeException::class);
+
+        $body = $forwardGeocodeResponse->toArray();
+
+        $addresses = [];
+
+        foreach ($body as $address) {
+            array_push($addresses, DeriveFactory::createAddressFromArray([
+                'address' => $address
+            ]));
+        }
+
+        return $addresses;
     }
 }
