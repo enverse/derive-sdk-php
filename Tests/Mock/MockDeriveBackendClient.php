@@ -111,7 +111,8 @@ class MockDeriveBackendClient extends MockHttpClient
             return new MockResponse(json_encode(['code' => 'CCCCCC']), [
                 'response_headers' => [
                     'Content-Type' => 'application/json'
-                ]
+                ],
+                'http_code' => 201
             ]);
         }
 
