@@ -259,6 +259,37 @@ class DeriveClient implements DeriveClientInterface
         return $derive;
     }
 
+    public function editDerive(Derive $derive)
+    {
+        if (!$this->isAuthenticated()) {
+            $this->authenticate();
+        }
+
+        $deriveResponse = $this->httpClient->request('POST', $this->apiUrl . '/derive/edit/'. $derive->getCode(), [
+            'body' => json_encode($derive->toArray()),
+            'headers' => $this->getAuthenticatedHeaders()
+        ]);
+        
+        $this->checkResponseIsOk($deriveResponse, CreateDeriveException::class);
+        
+        return $derive;
+    }
+
+    public function deleteDerive($code)
+    {
+        if (!$this->isAuthenticated()) {
+            $this->authenticate();
+        }
+
+        $deriveResponse = $this->httpClient->request('POST', $this->apiUrl . '/derive/delete/'.$code, [
+            'headers' => $this->getAuthenticatedHeaders()
+        ]);
+        
+        $this->checkResponseIsOk($deriveResponse, CreateDeriveException::class);
+
+        return true;
+    }
+
     public function forwardGeocode(string $query)
     {
         if (!$this->isAuthenticated()) {
